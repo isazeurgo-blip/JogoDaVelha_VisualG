@@ -1,0 +1,215 @@
+// Jogo da velha 2.0
+
+algoritmo "JogoDaVelha9x9"
+
+var
+   cel: vetor[1..9,1..9] de caractere
+   dono: vetor[1..9] de caractere
+   t: vetor[1..9] de caractere
+   aviso, vez, jog, primeiro, ganhador, vencedor: caractere
+   bloco, fase, n, cont, livres, i, k, m, br, ir, bc, ic, bb, pp: inteiro
+   terminou, acabou: logico
+
+inicio
+   para i de 1 ate 9 faca
+      dono[i] <- " "
+      para k de 1 ate 9 faca
+         cel[i, k] <- " "
+      fimpara
+   fimpara
+   aviso <- ""
+   vez <- "X"
+   vencedor <- " "
+   livres <- 9
+   fase <- 1
+   terminou <- falso
+   acabou <- falso
+
+   enquanto acabou = falso faca
+
+      // Desenhando o tabuleiro
+
+      escreval("")
+      escreval(aviso)
+      escreval("")
+      para br de 1 ate 3 faca
+         para ir de 1 ate 3 faca
+            para bc de 1 ate 3 faca
+               bb <- (br-1)*3 + bc
+               para ic de 1 ate 3 faca
+                  pp <- (ir-1)*3 + ic
+                  se dono[bb] <> " " entao
+                     se pp = 5 entao
+                        escreva(dono[bb], " ")
+                     senao
+                        escreva("- ")
+                     fimse
+                  senao
+                     se cel[bb, pp] = " " entao
+                        escreva("- ")
+                     senao
+                        escreva(cel[bb, pp], " ")
+                     fimse
+                  fimse
+               fimpara
+               se bc < 3 entao
+                  escreva("| ")
+               fimse
+            fimpara
+            escreval("")
+         fimpara
+         se br < 3 entao
+            escreval("------+-------+------")
+         fimse
+      fimpara
+      escreval("")
+      escreval("Blocos conquistados:")
+      para br de 0 ate 2 faca
+         para bc de 1 ate 3 faca
+            bb <- br*3 + bc
+            se dono[bb] = " " entao
+               escreva("- ")
+            senao
+               escreva(dono[bb], " ")
+            fimse
+         fimpara
+         escreval("")
+      fimpara
+      escreval("")
+
+      // Final do jogo
+
+      se terminou entao
+         se vencedor <> " " entao
+            escreval("* O jogador ", vencedor, " VENCEU O JOGO! *")
+         senao
+            escreval("* Fim de jogo: empate geral! *")
+         fimse
+         acabou <- verdadeiro
+      senao
+         aviso <- ""
+
+         // Primeira parte - escolha do bloco
+         se fase = 1 entao
+            escreval("Jogador ", vez, ", escolha o BLOCO (1 a 9): ")
+            leia(n)
+            se (n < 1) ou (n > 9) entao
+               aviso <- "Bloco invalido! Digite um numero de 1 a 9."
+            senao
+               se dono[n] <> " " entao
+                  aviso <- "este bloco ja foi selecionado, escolha outro"
+               senao
+                  bloco <- n
+                  fase <- 2
+                  jog <- vez
+                  primeiro <- vez
+                  cont <- 0
+                  para m de 1 ate 9 faca
+                     cel[bloco, m] <- " "
+                  fimpara
+               fimse
+            fimse
+
+         // Segunda parte - Jogo acontecendo dentro do bloco
+         senao
+            escreval("Bloco ", bloco, " - Jogador ", jog, ", escolha a POSICAO (1 a 9): ")
+            leia(n)
+            se (n < 1) ou (n > 9) entao
+               aviso <- "Posicao invalida! Digite um numero de 1 a 9."
+            senao
+               se cel[bloco, n] <> " " entao
+                  aviso <- "Posicao ocupada, escolha outra."
+               senao
+                  cel[bloco, n] <- jog
+                  cont <- cont + 1
+
+                  // vencedor do bloco
+                  para m de 1 ate 9 faca
+                     t[m] <- cel[bloco, m]
+                  fimpara
+                  ganhador <- " "
+                  para m de 0 ate 2 faca
+                     se (t[m*3+1] <> " ") e (t[m*3+1] = t[m*3+2]) e (t[m*3+2] = t[m*3+3]) entao
+                        ganhador <- t[m*3+1]
+                     fimse
+                     se (t[m+1] <> " ") e (t[m+1] = t[m+4]) e (t[m+4] = t[m+7]) entao
+                        ganhador <- t[m+1]
+                     fimse
+                  fimpara
+                  se (t[1] <> " ") e (t[1] = t[5]) e (t[5] = t[9]) entao
+                     ganhador <- t[1]
+                  fimse
+                  se (t[3] <> " ") e (t[3] = t[5]) e (t[5] = t[7]) entao
+                     ganhador <- t[3]
+                  fimse
+
+                  se ganhador <> " " entao
+                     // bloco conquistado
+                     dono[bloco] <- ganhador
+                     livres <- livres - 1
+                     aviso <- "Bloco conquistado!"
+                     fase <- 1
+
+                     // verifica vencedor do tabuleiro maior
+                     para m de 1 ate 9 faca
+                        t[m] <- dono[m]
+                     fimpara
+                     ganhador <- " "
+                     para m de 0 ate 2 faca
+                        se (t[m*3+1] <> " ") e (t[m*3+1] = t[m*3+2]) e (t[m*3+2] = t[m*3+3]) entao
+                           ganhador <- t[m*3+1]
+                        fimse
+                        se (t[m+1] <> " ") e (t[m+1] = t[m+4]) e (t[m+4] = t[m+7]) entao
+                           ganhador <- t[m+1]
+                        fimse
+                     fimpara
+                     se (t[1] <> " ") e (t[1] = t[5]) e (t[5] = t[9]) entao
+                        ganhador <- t[1]
+                     fimse
+                     se (t[3] <> " ") e (t[3] = t[5]) e (t[5] = t[7]) entao
+                        ganhador <- t[3]
+                     fimse
+
+                     se ganhador <> " " entao
+                        vencedor <- ganhador
+                        terminou <- verdadeiro
+                     fimse
+                     se livres = 0 entao
+                        terminou <- verdadeiro
+                     fimse
+
+                     // passa a escolha do proximo bloco
+                     se vez = "X" entao
+                        vez <- "O"
+                     senao
+                        vez <- "X"
+                     fimse
+                  senao
+                     se cont = 9 entao
+                        // deu velha: limpa o bloco e joga de novo
+                        aviso <- "Deu velha! O bloco sera jogado novamente."
+                        para m de 1 ate 9 faca
+                           cel[bloco, m] <- " "
+                        fimpara
+                        cont <- 0
+                        se primeiro = "X" entao
+                           primeiro <- "O"
+                        senao
+                           primeiro <- "X"
+                        fimse
+                        jog <- primeiro
+                     senao
+                        // troca de jogadores
+                        se jog = "X" entao
+                           jog <- "O"
+                        senao
+                           jog <- "X"
+                        fimse
+                     fimse
+                  fimse
+               fimse
+            fimse
+         fimse
+      fimse
+   fimenquanto
+fimalgoritmo
